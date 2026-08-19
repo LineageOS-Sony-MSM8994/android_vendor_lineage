@@ -252,17 +252,21 @@ endif
 ifeq ($(FULL_KERNEL_BUILD),true)
 # Add host bin out dir to path
 PATH_OVERRIDE := PATH=$(KERNEL_BUILD_OUT_PREFIX)$(HOST_OUT_EXECUTABLES):$$PATH
-ifeq ($(KERNEL_ARCH),arm64)
-    KERNEL_CLANG_TRIPLE ?= CLANG_TRIPLE=aarch64-linux-gnu-
-else ifeq ($(KERNEL_ARCH),arm)
-    KERNEL_CLANG_TRIPLE ?= CLANG_TRIPLE=arm-linux-gnu-
-else ifeq ($(KERNEL_ARCH),x86)
-    KERNEL_CLANG_TRIPLE ?= CLANG_TRIPLE=x86_64-linux-gnu-
-endif
-PATH_OVERRIDE += LD_LIBRARY_PATH=$(TARGET_KERNEL_CLANG_PATH)/lib64:$$LD_LIBRARY_PATH
-PATH_OVERRIDE += PATH=$(TARGET_KERNEL_CLANG_PATH)/bin:$$PATH
-ifeq ($(KERNEL_CC),)
-    KERNEL_CC := CC="$(KERNEL_CC_WRAPPER) clang" LD=ld.lld
+ifneq ($(TARGET_KERNEL_CLANG_COMPILE),false)
+    ifneq ($(KERNEL_NO_GCC), true)
+        ifeq ($(KERNEL_ARCH),arm64)
+            KERNEL_CLANG_TRIPLE ?= CLANG_TRIPLE=aarch64-linux-gnu-
+        else ifeq ($(KERNEL_ARCH),arm)
+            KERNEL_CLANG_TRIPLE ?= CLANG_TRIPLE=arm-linux-gnu-
+        else ifeq ($(KERNEL_ARCH),x86)
+            KERNEL_CLANG_TRIPLE ?= CLANG_TRIPLE=x86_64-linux-gnu-
+        endif
+        PATH_OVERRIDE += LD_LIBRARY_PATH=$(TARGET_KERNEL_CLANG_PATH)/lib64:$$LD_LIBRARY_PATH
+    endif
+    PATH_OVERRIDE += PATH=$(TARGET_KERNEL_CLANG_PATH)/bin:$$PATH
+    ifeq ($(KERNEL_CC),)
+        KERNEL_CC := CC="$(KERNEL_CC_WRAPPER) clang" LD=ld.lld
+    endif
 endif
 
 # System tools are no longer allowed on 10+
