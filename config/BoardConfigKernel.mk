@@ -21,6 +21,8 @@
 #   TARGET_KERNEL_SOURCE               = Kernel source dir, optional, defaults
 #                                          to kernel/$(TARGET_DEVICE_DIR)
 #   TARGET_KERNEL_ARCH                 = Kernel Arch
+#   TARGET_KERNEL_HEADER_ARCH          = Arch of the exported uapi headers, optional,
+#                                          defaults to $(TARGET_KERNEL_ARCH)
 #   TARGET_KERNEL_CROSS_COMPILE_PREFIX = Compiler prefix (e.g. arm-eabi-)
 #                                          defaults to arm-linux-androidkernel- for arm
 #                                                      aarch64-linux-android- for arm64
@@ -73,6 +75,13 @@ ifeq ($(TARGET_KERNEL_ARCH),)
     KERNEL_ARCH := $(TARGET_ARCH)
 else
     KERNEL_ARCH := $(TARGET_KERNEL_ARCH)
+endif
+
+TARGET_KERNEL_HEADER_ARCH := $(strip $(TARGET_KERNEL_HEADER_ARCH))
+ifeq ($(TARGET_KERNEL_HEADER_ARCH),)
+    KERNEL_HEADER_ARCH := $(KERNEL_ARCH)
+else
+    KERNEL_HEADER_ARCH := $(TARGET_KERNEL_HEADER_ARCH)
 endif
 
 KERNEL_VERSION := $(shell grep -s "^VERSION = " $(TARGET_KERNEL_SOURCE)/Makefile | awk '{ print $$3 }')
